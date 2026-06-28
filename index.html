@@ -163,7 +163,7 @@
   }
 
   textarea {
-    min-height: 120px;
+    min-height: 140px;
     resize: vertical;
     line-height: 1.5;
   }
@@ -207,6 +207,49 @@
   .voice-select-wrap select {
     margin-top: 4px;
   }
+
+  /* --- Roue d'émotions --- */
+  .emotion-wheel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 10px 0 16px;
+  }
+
+  .emotion-chip {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card-light);
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    white-space: nowrap;
+  }
+
+  .emotion-chip:active {
+    transform: scale(0.96);
+  }
+
+  .emotion-chip.just-inserted {
+    background: var(--red);
+    color: var(--text);
+    border-color: var(--red-bright);
+  }
+
+  .emotion-group-label {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 12px 0 6px;
+  }
+
+  .emotion-group-label:first-child { margin-top: 0; }
 
   .generate-btn {
     width: 100%;
@@ -338,8 +381,16 @@
     </div>
 
     <label class="field-label" for="targetText" style="margin-top:14px;">Texte en français</label>
-    <textarea id="targetText" placeholder="Il faut qu'on parte maintenant, sinon on n'arrivera jamais à temps..."></textarea>
+    <textarea id="targetText" placeholder="[apologetic] Je suis vraiment désolée pour hier... [serious] mais il faut qu'on parle de Matilda."></textarea>
     <p class="hint" id="charCount">0 caractère</p>
+
+    <div class="emotion-group-label">Émotions — touche pour insérer au curseur</div>
+    <div class="emotion-wheel" id="emotionWheelMain"></div>
+
+    <div class="emotion-group-label">Réactions</div>
+    <div class="emotion-wheel" id="emotionWheelReact"></div>
+
+    <p class="hint">Place ton curseur dans le texte là où le ton doit changer, puis touche une émotion : elle s'insère à cet endroit, ex. <code>[sad]</code>. Le texte qui suit sera lu avec ce ton jusqu'au prochain tag.</p>
   </div>
 
   <button class="generate-btn" id="generateBtn">Générer l'audio</button>
@@ -362,8 +413,6 @@
 </footer>
 
 <script>
-  const STORAGE_KEY_VOICES = null; // pas de stockage navigateur, tout reste en mémoire JS
-
   let voices = []; // { id, name, voicePromptId }
   let voiceCounter = 0;
 
@@ -449,6 +498,81 @@
     statusText.textContent = msg;
     statusText.className = 'status' + (type ? ' ' + type : '');
   }
+
+  // --- Roue d'émotions : tags Phantom X 3.2 confirmés publiquement ---
+  // Touche une puce -> insère [tag] à la position du curseur dans le textarea,
+  // sans effacer ce qui a déjà été écrit.
+  const emotionGroups = [
+    {
+      wheelId: 'emotionWheelMain',
+      tags: [
+        { label: 'Neutre',     tag: 'default' },
+        { label: 'Triste',     tag: 'sad' },
+        { label: 'Joie',       tag: 'joy' },
+        { label: 'Colère',     tag: 'angry' },
+        { label: 'Peur',       tag: 'fear' },
+        { label: 'Sérieux',    tag: 'serious' },
+        { label: 'Excité',     tag: 'excited' },
+        { label: 'Calme',      tag: 'calm' },
+        { label: 'Sarcasme',   tag: 'sarcastic' },
+        { label: 'Chuchoté',   tag: 'whisper' },
+        { label: 'Rassurant',  tag: 'reassuring' },
+        { label: 'Pensif',     tag: 'reflective' }
+      ]
+    },
+    {
+      wheelId: 'emotionWheelReact',
+      tags: [
+        { label: 'Rire (léger)', tag: 'giggle' },
+        { label: 'Rire fort',    tag: 'laughter' },
+        { label: 'Excuse',       tag: 'apologetic' },
+        { label: 'Question',     tag: 'question' },
+        { label: 'Révélation',   tag: 'revealing' },
+        { label: 'Invitant',     tag: 'inviting' }
+      ]
+    }
+  ];
+
+  function insertAtCursor(textarea, textToInsert) {
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? textarea.value.length;
+    const before = textarea.value.slice(0, start);
+    const after = textarea.value.slice(end);
+
+    // Ajoute un espace avant le tag si on n'est pas en début de texte / ligne
+    const needsSpaceBefore = before.length > 0 && !/\s$/.test(before);
+    const insertion = (needsSpaceBefore ? ' ' : '') + textToInsert + ' ';
+
+    textarea.value = before + insertion + after;
+    const newPos = (before + insertion).length;
+    textarea.focus();
+    textarea.setSelectionRange(newPos, newPos);
+
+    // Met à jour le compteur de caractères
+    const len = textarea.value.length;
+    charCountEl.textContent = len + (len === 1 ? ' caractère' : ' caractères');
+  }
+
+  function buildEmotionWheels() {
+    emotionGroups.forEach(group => {
+      const wheelEl = document.getElementById(group.wheelId);
+      if (!wheelEl) return;
+      group.tags.forEach(({ label, tag }) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'emotion-chip';
+        chip.textContent = label;
+        chip.addEventListener('click', () => {
+          insertAtCursor(targetTextEl, `[${tag}]`);
+          chip.classList.add('just-inserted');
+          setTimeout(() => chip.classList.remove('just-inserted'), 250);
+        });
+        wheelEl.appendChild(chip);
+      });
+    });
+  }
+
+  buildEmotionWheels();
 
   generateBtn.addEventListener('click', async () => {
     const apiKey = apiKeyEl.value.trim();
