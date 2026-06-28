@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doublage — Nostalgique TV</title>
+<style>
+  :root {
+    --bg: #1a0e14;
+    --bg-card: #2a1620;
+    --bg-card-light: #34192a;
+    --gold: #d4af6a;
+    --gold-bright: #e8c987;
+    --red: #8b1d3a;
+    --red-bright: #b8294e;
+    --text: #f3e9da;
+    --text-dim: #c9b8a8;
+    --text-faint: #8a7568;
+    --border: #4a2638;
+    --success: #6b9e6b;
+    --error: #c75c5c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at top, #2a1018 0%, #1a0e14 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 60px;
+  }
+
+  header {
+    padding: 36px 20px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(212,175,106,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.85;
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    position: relative;
+  }
+
+  h1 em { font-style: italic; color: var(--gold-bright); }
+
+  .subtitle {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text-faint);
+    margin: 10px auto 0;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 0 18px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-label .num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--text);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  label.field-label {
+    display: block;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .hint {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    color: var(--text-faint);
+    margin: 6px 0 0;
+    line-height: 1.45;
+  }
+
+  input[type="password"],
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin-bottom: 4px;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .person-block {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--bg-card-light);
+  }
+
+  .person-block .person-name-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .person-block .person-name-row input { margin-bottom: 0; flex: 1; }
+
+  .person-block button.remove-person {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 8px;
+    width: 40px;
+    flex-shrink: 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .emotion-code-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .emotion-code-row input.emotion-label-input { flex: 0 0 38%; }
+  .emotion-code-row input.emotion-id-input { flex: 1; }
+  .emotion-code-row input { margin-bottom: 0; font-size: 13px; }
+
+  .emotion-code-row button.remove-emotion {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 8px;
+    width: 34px;
+    flex-shrink: 0;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .add-emotion-btn, #addPersonBtn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--gold);
+    border-radius: 8px;
+    width: 100%;
+    padding: 9px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12.5px;
+    cursor: pointer;
+    margin-top: 2px;
+  }
+
+  #addPersonBtn { padding: 10px; font-size: 13px; margin-top: 4px; }
+
+  .preset-note {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin: 8px 0 10px;
+    line-height: 1.4;
+  }
+
+  .voice-select-wrap select { margin-top: 4px; }
+
+  /* --- Boutons émotion (étape 3) --- */
+  .emotion-wheel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 10px 0 4px;
+  }
+
+  .emotion-chip {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12.5px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card-light);
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .emotion-chip.active {
+    background: var(--red);
+    color: var(--text);
+    border-color: var(--red-bright);
+  }
+
+  .emotion-chip:active { transform: scale(0.96); }
+
+  .generate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--red-bright), var(--red));
+    color: var(--text);
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 16px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(139,29,58,0.4);
+    transition: transform 0.1s ease, opacity 0.2s ease;
+  }
+
+  .generate-btn:active { transform: scale(0.98); }
+  .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+    color: var(--text-faint);
+  }
+
+  .status.error { color: var(--error); }
+  .status.success { color: var(--success); }
+
+  .result-card { display: none; }
+  .result-card.visible { display: block; }
+
+  audio { width: 100%; margin-bottom: 14px; }
+
+  .result-actions { display: flex; gap: 10px; }
+
+  .btn-secondary {
+    flex: 1;
+    background: var(--bg-card-light);
+    border: 1px solid var(--border);
+    color: var(--gold-bright);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    cursor: pointer;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    line-height: 1.6;
+    padding: 0 30px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Nostalgique TV</p>
+  <h1>Studio de <em>doublage</em></h1>
+  <p class="subtitle">Génère des voix françaises pour tes épisodes via ton compte Deepdub.</p>
+</header>
+
+<main>
+
+  <!-- ÉTAPE 1 : Clé API -->
+  <div class="card">
+    <div class="card-label"><span class="num">1</span> Clé API Deepdub</div>
+    <label class="field-label" for="apiKey">Colle ta clé (dd-...)</label>
+    <input type="password" id="apiKey" placeholder="dd-xxxxxxxxxxxxxxxx" autocomplete="off">
+    <p class="hint">Ta clé n'est jamais enregistrée nulle part — elle reste seulement dans cette page tant qu'elle est ouverte, et disparaît si tu actualises ou fermes l'onglet.</p>
+  </div>
+
+  <!-- ÉTAPE 2 : Personnages + leurs codes par émotion -->
+  <div class="card">
+    <div class="card-label"><span class="num">2</span> Tes personnages</div>
+    <p class="hint" style="margin-bottom:12px;">Pour chaque personnage, ajoute un code (voicePromptId) par émotion — colle-les depuis ton Voice Playground Deepdub. Tu peux en mettre autant que tu veux par personnage.</p>
+
+    <div id="personList"></div>
+
+    <button type="button" id="addPersonBtn">+ Ajouter un personnage</button>
+  </div>
+
+  <!-- ÉTAPE 3 : Texte -->
+  <div class="card">
+    <div class="card-label"><span class="num">3</span> Texte à doubler</div>
+
+    <label class="field-label" for="personSelect">Personnage</label>
+    <div class="voice-select-wrap">
+      <select id="personSelect">
+        <option value="">— Ajoute d'abord un personnage ci-dessus —</option>
+      </select>
+    </div>
+
+    <label class="field-label" style="margin-top:14px;">Émotion pour cette réplique</label>
+    <div class="emotion-wheel" id="emotionWheel"></div>
+    <p class="hint" id="noEmotionHint">Choisis un personnage pour voir ses émotions disponibles.</p>
+
+    <label class="field-label" for="targetText" style="margin-top:14px;">Texte en français</label>
+    <textarea id="targetText" placeholder="Il faut qu'on parte maintenant, sinon on n'arrivera jamais à temps..."></textarea>
+    <p class="hint" id="charCount">0 caractère</p>
+  </div>
+
+  <button class="generate-btn" id="generateBtn">Générer l'audio</button>
+  <p class="status" id="statusText"></p>
+
+  <!-- RÉSULTAT -->
+  <div class="card result-card" id="resultCard">
+    <div class="card-label">Résultat</div>
+    <audio id="audioPlayer" controls></audio>
+    <div class="result-actions">
+      <a class="btn-secondary" id="downloadLink" download="doublage.mp3">Télécharger le MP3</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Outil personnel — connecté directement à l'API Deepdub.<br>
+  Aucune donnée n'est stockée ni partagée.
+</footer>
+
+<script>
+  // ---------- Données en mémoire ----------
+  // people = [{ id, name, emotions: [{ label, voicePromptId }] }]
+  let people = [];
+  let personCounter = 0;
+  let emotionCounter = 0;
+  let selectedEmotionId = null; // id du chip d'émotion actif
+
+  const personListEl = document.getElementById('personList');
+  const personSelectEl = document.getElementById('personSelect');
+  const addPersonBtn = document.getElementById('addPersonBtn');
+  const emotionWheelEl = document.getElementById('emotionWheel');
+  const noEmotionHint = document.getElementById('noEmotionHint');
+  const targetTextEl = document.getElementById('targetText');
+  const charCountEl = document.getElementById('charCount');
+  const generateBtn = document.getElementById('generateBtn');
+  const statusText = document.getElementById('statusText');
+  const resultCard = document.getElementById('resultCard');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const downloadLink = document.getElementById('downloadLink');
+  const apiKeyEl = document.getElementById('apiKey');
+
+  // Préréglage Loïse (Female French Voice for Gaming) — déjà rempli pour toi.
+  const LOISE_PRESET = {
+    name: 'Loïse',
+    emotions: [
+      { label: 'Host (neutre)', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-neutral-regular-speed' },
+      { label: 'Spontané', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Spontaneous-Speech' },
+      { label: 'Host lent', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-neutral-slow-speed' },
+      { label: 'Dramatique', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-dramatic-regular-speed' },
+      { label: 'Dramatique lent', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-dramatic-slow-speed' },
+      { label: 'Enjoué (bubbly)', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-bubbly-regular-speed' },
+      { label: 'Enjoué lent', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-bubbly-slow-speed' },
+      { label: 'Procédural', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-procedural' },
+      { label: 'Triste (host)', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Host-sad' },
+      { label: 'Colère', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Angry' },
+      { label: 'Triste', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Sad' },
+      { label: 'Détendu', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Relaxed' },
+      { label: 'Sarcastique', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Sarcastic' },
+      { label: 'Nerveux', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Nervous' },
+      { label: 'Blasé', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Bored' },
+      { label: 'Intime', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Intimate' },
+      { label: 'Excité', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Excited' },
+      { label: 'Timide', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Shy' },
+      { label: 'Inspiré', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Inspired' },
+      { label: 'Rieur (giggly)', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Giggly' },
+      { label: 'Action', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Action' },
+      { label: 'Inquiet', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Testimonial-Concern' },
+      { label: 'Commercial doux', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Commercial-Soft-Sell' },
+      { label: 'Commercial dur', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Commercial-Hard-Sell' },
+      { label: 'Présentateur JT', id: 'e1779a15-5699-42fc-b2ec-2cb8182812fe_prompt-V2-Newscaster-headlines' }
+    ]
+  };
+
+  // ---------- Construction d'un bloc personnage ----------
+  function addPersonBlock(presetName = '', presetEmotions = null) {
+    personCounter++;
+    const personId = 'person-' + personCounter;
+
+    const block = document.createElement('div');
+    block.className = 'person-block';
+    block.dataset.personId = personId;
+
+    block.innerHTML = `
+      <div class="person-name-row">
+        <input type="text" class="person-name-input" placeholder="Nom du personnage (ex: Grachi)" value="${presetName}">
+        <button type="button" class="remove-person" title="Retirer">×</button>
+      </div>
+      <div class="emotion-list"></div>
+      <button type="button" class="add-emotion-btn">+ Ajouter une émotion / un code</button>
+      <p class="preset-note" style="display:none;">Préréglage chargé : modifie ou complète librement.</p>
+    `;
+    personListEl.appendChild(block);
+
+    const emotionListEl = block.querySelector('.emotion-list');
+    const addEmotionBtn = block.querySelector('.add-emotion-btn');
+    const nameInput = block.querySelector('.person-name-input');
+    const presetNote = block.querySelector('.preset-note');
+
+    function addEmotionRow(label = '', voicePromptId = '') {
+      emotionCounter++;
+      const row = document.createElement('div');
+      row.className = 'emotion-code-row';
+      row.innerHTML = `
+        <input type="text" class="emotion-label-input" placeholder="Émotion (ex: Triste)" value="${label}">
+        <input type="text" class="emotion-id-input" placeholder="voicePromptId" value="${voicePromptId}">
+        <button type="button" class="remove-emotion" title="Retirer">×</button>
+      `;
+      emotionListEl.appendChild(row);
+
+      row.querySelector('.remove-emotion').addEventListener('click', () => {
+        row.remove();
+        syncState();
+      });
+      row.querySelector('.emotion-label-input').addEventListener('input', syncState);
+      row.querySelector('.emotion-id-input').addEventListener('input', syncState);
+    }
+
+    if (presetEmotions && presetEmotions.length) {
+      presetEmotions.forEach(e => addEmotionRow(e.label, e.id));
+      presetNote.style.display = 'block';
+    } else {
+      addEmotionRow(); // une ligne vide pour démarrer
+    }
+
+    addEmotionBtn.addEventListener('click', () => addEmotionRow());
+    nameInput.addEventListener('input', syncState);
+
+    block.querySelector('.remove-person').addEventListener('click', () => {
+      block.remove();
+      syncState();
+    });
+
+    syncState();
+  }
+
+  // ---------- Lit tout le DOM et reconstruit la liste "people" + les menus ----------
+  function syncState() {
+    people = [];
+    const blocks = personListEl.querySelectorAll('.person-block');
+
+    blocks.forEach(block => {
+      const name = block.querySelector('.person-name-input').value.trim();
+      const emotions = [];
+      block.querySelectorAll('.emotion-code-row').forEach(row => {
+        const label = row.querySelector('.emotion-label-input').value.trim();
+        const id = row.querySelector('.emotion-id-input').value.trim();
+        if (id) emotions.push({ label: label || 'Sans nom', id });
+      });
+      if (name || emotions.length) {
+        people.push({ blockId: block.dataset.personId, name: name || 'Sans nom', emotions });
+      }
+    });
+
+    refreshPersonSelect();
+  }
+
+  function refreshPersonSelect() {
+    const current = personSelectEl.value;
+    personSelectEl.innerHTML = '';
+
+    const validPeople = people.filter(p => p.emotions.length > 0);
+
+    if (validPeople.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = "— Ajoute d'abord un personnage ci-dessus —";
+      personSelectEl.appendChild(opt);
+      renderEmotionWheel(null);
+      return;
+    }
+
+    validPeople.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.blockId;
+      opt.textContent = p.name;
+      personSelectEl.appendChild(opt);
+    });
+
+    if (current && validPeople.some(p => p.blockId === current)) {
+      personSelectEl.value = current;
+    }
+
+    renderEmotionWheelForSelection();
+  }
+
+  function renderEmotionWheelForSelection() {
+    const selectedId = personSelectEl.value;
+    const person = people.find(p => p.blockId === selectedId);
+    renderEmotionWheel(person || null);
+  }
+
+  function renderEmotionWheel(person) {
+    emotionWheelEl.innerHTML = '';
+    selectedEmotionId = null;
+
+    if (!person || !person.emotions.length) {
+      noEmotionHint.style.display = 'block';
+      return;
+    }
+
+    noEmotionHint.style.display = 'none';
+
+    person.emotions.forEach((emo, idx) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'emotion-chip';
+      chip.textContent = emo.label;
+      chip.dataset.voiceId = emo.id;
+
+      chip.addEventListener('click', () => {
+        emotionWheelEl.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedEmotionId = emo.id;
+      });
+
+      emotionWheelEl.appendChild(chip);
+
+      // Sélectionne la première émotion par défaut
+      if (idx === 0) {
+        chip.classList.add('active');
+        selectedEmotionId = emo.id;
+      }
+    });
+  }
+
+  personSelectEl.addEventListener('change', renderEmotionWheelForSelection);
+
+  addPersonBtn.addEventListener('click', () => addPersonBlock());
+
+  // Démarrage : Loïse préchargée avec ses 25 émotions, + un bloc vide pour les autres personnages
+  addPersonBlock(LOISE_PRESET.name, LOISE_PRESET.emotions);
+  addPersonBlock();
+
+  targetTextEl.addEventListener('input', () => {
+    const len = targetTextEl.value.length;
+    charCountEl.textContent = len + (len === 1 ? ' caractère' : ' caractères');
+  });
+
+  function setStatus(msg, type = '') {
+    statusText.textContent = msg;
+    statusText.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  generateBtn.addEventListener('click', async () => {
+    const apiKey = apiKeyEl.value.trim();
+    const voicePromptId = selectedEmotionId;
+    const text = targetTextEl.value.trim();
+
+    if (!apiKey) {
+      setStatus('Colle ta clé API Deepdub avant de générer.', 'error');
+      apiKeyEl.focus();
+      return;
+    }
+    if (!voicePromptId) {
+      setStatus('Choisis un personnage et une émotion.', 'error');
+      return;
+    }
+    if (!text) {
+      setStatus('Écris ou colle le texte à doubler.', 'error');
+      targetTextEl.focus();
+      return;
+    }
+
+    generateBtn.disabled = true;
+    setStatus('Génération en cours, patience...');
+    resultCard.classList.remove('visible');
+
+    try {
+      const response = await fetch('https://restapi.deepdub.ai/api/v1/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey
+        },
+        body: JSON.stringify({
+          model: 'dd-etts-3.2',
+          targetText: text,
+          locale: 'fr-FR',
+          voicePromptId: voicePromptId
+        })
+      });
+
+      if (!response.ok) {
+        let errMsg = `Erreur Deepdub (code ${response.status}).`;
+        try {
+          const errJson = await response.json();
+          if (errJson && (errJson.message || errJson.error)) {
+            errMsg += ' ' + (errJson.message || errJson.error);
+          }
+        } catch (e) { /* réponse non-JSON */ }
+        throw new Error(errMsg);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      audioPlayer.src = audioUrl;
+      downloadLink.href = audioUrl;
+      resultCard.classList.add('visible');
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      setStatus('Audio généré avec succès.', 'success');
+    } catch (err) {
+      console.error(err);
+      setStatus(err.message || 'Une erreur est survenue. Vérifie ta clé et ton voicePromptId.', 'error');
+    } finally {
+      generateBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
